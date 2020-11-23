@@ -1,7 +1,7 @@
 from numpy import zeros, uint8
 from PIL import Image
 from helpers import number_is_bounded_by_mandelbrot
-
+import time
 
 class MandelbrotImage:
     def __init__(self, scale=500, iterations=50, x_start=-2, y_start=-1.5, x_width=3, y_height=3):
@@ -13,20 +13,12 @@ class MandelbrotImage:
         self.y_height = y_height
 
         self.fill_image_array()
-    
-    # @property
-    # def meta_data(self):
-    #     return {
-    #         "scale": self.scale,
-    #         "iterations": self.iterations,
-    #         "x_start": self.x_start,
-    #         "y_start": self.y_start,
-    #         "x_width": self.x_width,
-    #         "y_height": self.y_height,
-    #     }
 
     def fill_image_array(self):
-        image_array = zeros((self.scale, self.scale, 3), dtype=uint8)
+        start_time = time.time()
+        height = int(self.scale / 2) + 1
+
+        image_array = zeros((height, self.scale, 3), dtype=uint8)
 
         for row_index in range(self.scale + 1):
             real = self.x_start  + (row_index / self.scale) * self.x_width
@@ -37,6 +29,8 @@ class MandelbrotImage:
                 value = number_is_bounded_by_mandelbrot(real, imaginary, self.iterations)
 
                 if value:
-                    image_array[column_index, row_index] = (255, 255, 255)
+                    if column_index < height and row_index < self.scale:
+                        image_array[column_index, row_index] = (255, 255, 255)
 
         self.image = Image.fromarray(image_array)
+        print(time.time() - start_time)
