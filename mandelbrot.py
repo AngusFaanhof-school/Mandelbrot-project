@@ -1,11 +1,11 @@
-from numpy import zeros, uint8
 from PIL import Image
 from helpers import number_is_bounded_by_mandelbrot
 import time
 
 class MandelbrotImage:
-    def __init__(self, scale=500, iterations=50, x_start=-2, y_start=-1.5, x_width=3, y_height=3):
-        self.scale = scale
+    def __init__(self, picture_width=500, picture_height=500, iterations=50, x_start=-2, y_start=-1.5, x_width=3, y_height=3):
+        self.picture_width = picture_width
+        self.picture_height = picture_height
         self.iterations = iterations
         self.x_start = x_start
         self.y_start = y_start
@@ -16,21 +16,23 @@ class MandelbrotImage:
 
     def fill_image_array(self):
         start_time = time.time()
-        height = int(self.scale / 2) + 1
 
-        image_array = zeros((height, self.scale, 3), dtype=uint8)
+        image_array = [(0,0,0)] * (self.picture_width * self.picture_height)
+        height = int(self.picture_height / 2)
 
-        for row_index in range(self.scale + 1):
-            real = self.x_start  + (row_index / self.scale) * self.x_width
+        for y in range(height + 1):
+            imaginary = self.y_start + (y / self.picture_height) * self.y_height
+            pixel_y = y * self.picture_width
 
-            for column_index in range(self.scale + 1):
-                imaginary = self.y_start + (column_index / self.scale) * self.y_height
+            for x in range(self.picture_width):
+                real = self.x_start  + (x / self.picture_width) * self.x_width
 
                 value = number_is_bounded_by_mandelbrot(real, imaginary, self.iterations)
-
                 if value:
-                    if column_index < height and row_index < self.scale:
-                        image_array[column_index, row_index] = (255, 255, 255)
+                    image_array[pixel_y + x] = (255,255,255)
+                    image_array[self.picture_height - pixel_y + x] = (255,255,255)
 
-        self.image = Image.fromarray(image_array)
+        self.image = Image.new("RGB", (self.picture_width, self.picture_height))
+        self.image.putdata(image_array)
+
         print(time.time() - start_time)
