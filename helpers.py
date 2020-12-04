@@ -47,11 +47,3 @@ def draw_from_iterations_array(canvas, iterations_array, width, option, color="#
             x = pixel % width
             y = pixel // width
             canvas.create_rectangle(x, y, x, y, outline=get_color(iterations_array[pixel]))
-
-def get_summary_from_settings(settings):
-    summary = ""
-
-    for setting in settings.keys():
-        summary += f"_{settings[setting]}"
-
-    return summary

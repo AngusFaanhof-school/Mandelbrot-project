@@ -1,7 +1,7 @@
 from helpers import number_is_bounded_by_mandelbrot
 
 class Mandelbrot:
-    def __init__(self, pixel_width, pixel_height, iterations=100, x_start=-2, y_start=-1.5, x_width=3, y_height=3):
+    def __init__(self, pixel_width, pixel_height, iterations, x_start=-2, y_start=-1.5, x_width=3, y_height=3):
         self.pixel_width = pixel_width
         self.pixel_height = pixel_height
         self.iterations = iterations
@@ -20,6 +20,8 @@ class Mandelbrot:
         for y in range(self.pixel_height):
             # Set the imaginary part of the complex number
             imaginary = self.y_start + (y / self.pixel_height) * self.y_height
+
+            # used to calculate the pixel for the array
             pixel_y = y * self.pixel_width
 
             # Go over each pixel in the x dimension
@@ -27,9 +29,8 @@ class Mandelbrot:
                 # Set the real part of the imaginary number
                 real = self.x_start  + (x / self.pixel_width) * self.x_width
 
+                # Calculate if the complex number is bounded by the mandelbrot set
                 value = number_is_bounded_by_mandelbrot(complex(real, imaginary), self.iterations)
-                if value:
-                    self.iterations_array[pixel_y + x] = value
 
                 # Check if the value diverged
                 if value:
