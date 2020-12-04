@@ -29,7 +29,7 @@ class Mandelbrot:
 
                 value = number_is_bounded_by_mandelbrot(complex(real, imaginary), self.iterations)
                 if value:
-                    iterations_array[pixel_y + x] = value
+                    self.iterations_array[pixel_y + x] = value
 
                 # Check if the value diverged
                 if value:
