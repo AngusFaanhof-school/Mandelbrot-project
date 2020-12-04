@@ -14,30 +14,38 @@ def number_is_bounded_by_mandelbrot(real, imaginary, iterations):
 
     return 0
 
-def draw_from_pixel_array(canvas, image_array, width):
-    length = len(image_array)
+def get_color(iterations):
+    values = [0, 32, 64, 128]
+    b = values[iterations % 4]
+    g = values[(iterations // 4) % 4] 
+    r = values[(iterations // 16) % 4]
+        
+    return '#%02x%02x%02x' % (r, g, b)
 
-    for p in range(length):
-        if image_array[p] == 0:
-            x = p % width
-            y = p // width
-            canvas.create_rectangle(x, y, x, y, outline="white")
-
-def get_pixel_array(image_array, width, option):
-    length = len(image_array)
-    pixel_array = [0] * length
-
-    if option == 1:
-        for p in range(length):
-            if image_array[p] != 0:
-                pixel_array[p] = (255,255,255)
+def draw_from_iterations_array(canvas, iterations_array, width, option):
     
-    if option == 2:
-        for p in range(length):
-            if image_array[p] < 20:
-                pixel_array[p] = (255,255,255)
+    # full
+    if option == 1:
+        for pixel in range(len(iterations_array)):
+            if iterations_array[pixel] == 0:
+                x = pixel % width
+                y = pixel // width
+                canvas.create_rectangle(x, y, x, y, outline="red")
 
-    return pixel_array
+    # edge
+    if option == 2:
+        for pixel in range(len(iterations_array)):
+            if iterations_array[pixel] > 20:
+                x = pixel % width
+                y = pixel // width
+                canvas.create_rectangle(x, y, x, y, outline="red")
+
+    # fancy
+    if option == 3:
+        for pixel in range(len(iterations_array)):
+            x = pixel % width
+            y = pixel // width
+            canvas.create_rectangle(x, y, x, y, outline=get_color(iterations_array[pixel]))
 
 def get_summary_from_settings(settings):
     summary = ""
@@ -46,5 +54,3 @@ def get_summary_from_settings(settings):
         summary += f"_{settings[setting]}"
 
     return summary
-
-    exit()
