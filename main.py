@@ -11,6 +11,7 @@ canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT)
 canvas.pack(side=tk.LEFT)
 
 # option select menu
+# this variable contains the selected option. It defaults to 1
 option = tk.IntVar()
 option.set(1)
 
@@ -24,10 +25,12 @@ special_mandelbrot = tk.Radiobutton(root, text="Special", variable=option, value
 special_mandelbrot.pack()
 
 # iterations slider
+# the iterations slider goes from 20 to 300
 iterations_slider = tk.Scale(root, from_=20, to=300, orient=tk.HORIZONTAL, label='iterations')
 iterations_slider.pack()
 
 # color select menu
+# each color scale goes from 0 to 255
 red_scale = tk.Scale(root, from_=0, to=255, orient=tk.HORIZONTAL, label="red")
 red_scale.pack()
 
@@ -37,9 +40,11 @@ green_scale.pack()
 blue_scale = tk.Scale(root, from_=0, to=255, orient=tk.HORIZONTAL, label='blue')
 blue_scale.pack()
 
+# create the initial mandelbrot set
 mandelbrot = Mandelbrot(WIDTH, HEIGHT, iterations=iterations_slider.get())
-draw_from_iterations_array(canvas, mandelbrot.iterations_array, WIDTH, 1)
+draw_from_iterations_array(canvas, mandelbrot.iterations_array, WIDTH, option.get())
 
+# Generates a new mandelbrot set and draws it
 def redraw_canvas():
     mandelbrot = Mandelbrot(WIDTH, HEIGHT, iterations=iterations_slider.get())
 
@@ -47,7 +52,7 @@ def redraw_canvas():
     g = green_scale.get()
     b = blue_scale.get()
 
-    color = hex_from_rgb((r,g,b))
+    color = hex_from_rgb(r,g,b)
 
     canvas.delete("all")
 

@@ -14,8 +14,8 @@ def number_is_bounded_by_mandelbrot(real, imaginary, iterations):
 
     return 0
 
-def hex_from_rgb(rgb):
-    return '#%02x%02x%02x' % rgb
+def hex_from_rgb(r,g,b):
+    return '#%02x%02x%02x' % (r,g,b)
 
 def get_color(iterations):
     values = [0, 32, 64, 128]
@@ -24,11 +24,11 @@ def get_color(iterations):
     g = values[(iterations // 4) % 4] 
     r = values[(iterations // 16) % 4]
         
-    return hex_from_rgb((r,g,b))
+    return hex_from_rgb(r,g,b)
 
 def draw_from_iterations_array(canvas, iterations_array, width, option, color="#000000"):
     
-    # edge
+    # Option 1 draws the edge of the mandelbrot set
     if option == 1:
         for pixel in range(len(iterations_array)):
             if iterations_array[pixel] > 20:
@@ -36,7 +36,7 @@ def draw_from_iterations_array(canvas, iterations_array, width, option, color="#
                 y = pixel // width
                 canvas.create_rectangle(x, y, x, y, outline=color)
 
-    # full
+    # Option 2 draws the inside of the mandelbrot set
     if option == 2:
         for pixel in range(len(iterations_array)):
             if iterations_array[pixel] == 0:
@@ -44,7 +44,7 @@ def draw_from_iterations_array(canvas, iterations_array, width, option, color="#
                 y = pixel // width
                 canvas.create_rectangle(x, y, x, y, outline=color)
 
-    # fancy
+    # Option 3 draws whole mandelbrot set with a coloring scheme
     if option == 3:
         for pixel in range(len(iterations_array)):
             x = pixel % width
