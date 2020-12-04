@@ -1,23 +1,59 @@
-from PIL import ImageTk
 import tkinter as tk
-import mandelbrot
+from mandelbrot import MandelbrotImage
+from helpers import draw_from_iterations_array, hex_from_rgb
 
 root = tk.Tk()
+WIDTH = 500
+HEIGHT = 500
 
-img = mandelbrot.MandelbrotImage().image
-photo_img =  ImageTk.PhotoImage(image=img)
+canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT)
 
-label = tk.Label(root, image=photo_img)
-label.img = photo_img
-label.pack(side=tk.LEFT)
+canvas.pack(side=tk.LEFT)
 
-def update_image():
-    img = mandelbrot.MandelbrotImage(picture_height=600, picture_width=600, iterations=500).image
-    photo_img =  ImageTk.PhotoImage(image=img)
-    label.configure(image=photo_img)
-    label.img = photo_img
+# option select menu
+option = tk.IntVar()
+option.set(1)
 
-update_button = tk.Button(root, text="Update image", command=update_image)
-update_button.pack(side=tk.RIGHT)
+edge_mandelbrot = tk.Radiobutton(root, text="Edge", variable=option, value=1)
+edge_mandelbrot.pack()
+
+full_mandelbrot = tk.Radiobutton(root, text="Full", variable=option, value=2)
+full_mandelbrot.pack()
+
+special_mandelbrot = tk.Radiobutton(root, text="Special", variable=option, value=3)
+special_mandelbrot.pack()
+
+# iterations slider
+iterations_slider = tk.Scale(root, from_=20, to=300, orient=tk.HORIZONTAL, label='iterations')
+iterations_slider.pack()
+
+# color select menu
+red_scale = tk.Scale(root, from_=0, to=255, orient=tk.HORIZONTAL, label="red")
+red_scale.pack()
+
+green_scale = tk.Scale(root, from_=0, to=255, orient=tk.HORIZONTAL, label="green")
+green_scale.pack()
+
+blue_scale = tk.Scale(root, from_=0, to=255, orient=tk.HORIZONTAL, label='blue')
+blue_scale.pack()
+
+mandelbrot = MandelbrotImage(WIDTH, HEIGHT, iterations=iterations_slider.get())
+draw_from_iterations_array(canvas, mandelbrot.iterations_array, WIDTH, 1)
+
+def redraw_canvas():
+    mandelbrot = MandelbrotImage(WIDTH, HEIGHT, iterations=iterations_slider.get())
+
+    r = red_scale.get()
+    g = green_scale.get()
+    b = blue_scale.get()
+
+    color = hex_from_rgb((r,g,b))
+
+    canvas.delete("all")
+
+    draw_from_iterations_array(canvas, mandelbrot.iterations_array, WIDTH, option.get(), color)
+
+button = tk.Button(root, text="Generate", command=redraw_canvas)
+button.pack(side=tk.RIGHT)
 
 root.mainloop()

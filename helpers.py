@@ -10,9 +10,46 @@ def number_is_bounded_by_mandelbrot(real, imaginary, iterations):
         iter += 1
         z = z*z + c
         if (z.real ** 2 + z.imag ** 2) > 4:
-            return False
+            return iter + 1
 
-    return True
+    return 0
+
+def hex_from_rgb(rgb):
+    return '#%02x%02x%02x' % rgb
+
+def get_color(iterations):
+    values = [0, 32, 64, 128]
+
+    b = values[iterations % 4]
+    g = values[(iterations // 4) % 4] 
+    r = values[(iterations // 16) % 4]
+        
+    return hex_from_rgb((r,g,b))
+
+def draw_from_iterations_array(canvas, iterations_array, width, option, color="#000000"):
+    
+    # edge
+    if option == 1:
+        for pixel in range(len(iterations_array)):
+            if iterations_array[pixel] > 20:
+                x = pixel % width
+                y = pixel // width
+                canvas.create_rectangle(x, y, x, y, outline=color)
+
+    # full
+    if option == 2:
+        for pixel in range(len(iterations_array)):
+            if iterations_array[pixel] == 0:
+                x = pixel % width
+                y = pixel // width
+                canvas.create_rectangle(x, y, x, y, outline=color)
+
+    # fancy
+    if option == 3:
+        for pixel in range(len(iterations_array)):
+            x = pixel % width
+            y = pixel // width
+            canvas.create_rectangle(x, y, x, y, outline=get_color(iterations_array[pixel]))
 
 def get_summary_from_settings(settings):
     summary = ""
