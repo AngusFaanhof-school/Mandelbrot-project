@@ -1,5 +1,5 @@
 import tkinter as tk
-from mandelbrot import MandelbrotImage
+from mandelbrot import Mandelbrot
 from helpers import draw_from_iterations_array, hex_from_rgb
 
 root = tk.Tk()
@@ -37,11 +37,11 @@ green_scale.pack()
 blue_scale = tk.Scale(root, from_=0, to=255, orient=tk.HORIZONTAL, label='blue')
 blue_scale.pack()
 
-mandelbrot = MandelbrotImage(WIDTH, HEIGHT, iterations=iterations_slider.get())
+mandelbrot = Mandelbrot(WIDTH, HEIGHT, iterations=iterations_slider.get())
 draw_from_iterations_array(canvas, mandelbrot.iterations_array, WIDTH, 1)
 
 def redraw_canvas():
-    mandelbrot = MandelbrotImage(WIDTH, HEIGHT, iterations=iterations_slider.get())
+    mandelbrot = Mandelbrot(WIDTH, HEIGHT, iterations=iterations_slider.get())
 
     r = red_scale.get()
     g = green_scale.get()

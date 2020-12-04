@@ -2,7 +2,7 @@ from PIL import Image
 from helpers import number_is_bounded_by_mandelbrot
 import time
 
-class MandelbrotImage:
+class Mandelbrot:
     def __init__(self, pixel_width, pixel_height, iterations=100, x_start=-2, y_start=-1.5, x_width=3, y_height=3):
         self.pixel_width = pixel_width
         self.pixel_height = pixel_height
