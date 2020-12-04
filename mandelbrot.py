@@ -27,8 +27,9 @@ class Mandelbrot:
                 # Set the real part of the imaginary number
                 real = self.x_start  + (x / self.pixel_width) * self.x_width
 
-                # Calculate if the complex number is bounded by the mandelbrot set
-                value = number_is_bounded_by_mandelbrot(real, imaginary, self.iterations)
+                value = number_is_bounded_by_mandelbrot(complex(real, imaginary), self.iterations)
+                if value:
+                    iterations_array[pixel_y + x] = value
 
                 # Check if the value diverged
                 if value:
