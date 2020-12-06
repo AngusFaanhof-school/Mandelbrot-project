@@ -1,14 +1,17 @@
 import tkinter as tk
+import tkinter.colorchooser as tkc
 from mandelbrot import Mandelbrot
-from helpers import draw_from_iterations_array, hex_from_rgb
+from helpers import draw_from_iterations_array, hex_from_rgb, get_area_variables
 
 WIDTH = 500
 HEIGHT = 500
 
+color = "#000000"
+
 root = tk.Tk()
+root.title("Project Mandelbrot")
 
 canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT)
-
 canvas.pack(side=tk.LEFT)
 
 # option select menu
@@ -30,30 +33,34 @@ special_mandelbrot.pack()
 iterations_slider = tk.Scale(root, from_=20, to=300, orient=tk.HORIZONTAL, label='iterations')
 iterations_slider.pack()
 
-# color select menu
-# each color scale goes from 0 to 255
-red_scale = tk.Scale(root, from_=0, to=255, orient=tk.HORIZONTAL, label="red")
-red_scale.pack()
+# Button menu to change the color
+color_label = tk.Label(root, text = "Custom color")
+color_label.pack()
 
-green_scale = tk.Scale(root, from_=0, to=255, orient=tk.HORIZONTAL, label="green")
-green_scale.pack()
+color_button = ""
 
-blue_scale = tk.Scale(root, from_=0, to=255, orient=tk.HORIZONTAL, label='blue')
-blue_scale.pack()
+def change_color():
+    global color
+    color = tkc.askcolor()[1]
+    color_button.configure(bg=color)
+
+color_button = tk.Button(root, width=10, command=change_color, text="CLICK ME!")
+color_button.pack()
+
+# zoom slider scale
+zoom_scale = tk.Scale(root, from_=-5, to=5, orient=tk.HORIZONTAL, label='zoom')
+zoom_scale.pack()
 
 # create the initial mandelbrot set
-mandelbrot = Mandelbrot(WIDTH, HEIGHT, iterations_slider.get())
+x_start, y_start, x_width, y_height = get_area_variables(zoom_scale.get())
+
+mandelbrot = Mandelbrot(WIDTH, HEIGHT, iterations_slider.get(), x_start, y_start, x_width, y_height)
 draw_from_iterations_array(canvas, mandelbrot.iterations_array, WIDTH, option.get())
 
 # Generates a new mandelbrot set and draws it
 def redraw_canvas():
-    mandelbrot = Mandelbrot(WIDTH, HEIGHT, iterations_slider.get())
-
-    r = red_scale.get()
-    g = green_scale.get()
-    b = blue_scale.get()
-
-    color = hex_from_rgb(r,g,b)
+    x_start, y_start, x_width, y_height = get_area_variables(zoom_scale.get())
+    mandelbrot = Mandelbrot(WIDTH, HEIGHT, iterations_slider.get(),x_start, y_start, x_width, y_height)
 
     canvas.delete("all")
 
