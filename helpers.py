@@ -47,3 +47,24 @@ def draw_from_iterations_array(canvas, iterations_array, width, option, color="#
             x = pixel % width
             y = pixel // width
             canvas.create_rectangle(x, y, x, y, outline=get_color(iterations_array[pixel]))
+
+def get_area_variables(zoom_level):
+    x_start = -2
+    y_start = -1.5
+
+    zoom_modifier = .25 * abs(zoom_level)
+
+    if zoom_level == 0:
+        x_width = 3
+        y_height = 3
+    elif zoom_level < 0:
+        x_start = -2 - zoom_modifier
+        y_start = -1.5 - zoom_modifier
+        x_width = 3 + 2 * zoom_modifier
+        y_height = 3 + 2 * zoom_modifier
+    else :
+        x_width = 3 - zoom_modifier
+        y_height = 3 - zoom_modifier
+
+    return x_start, y_start, x_width, y_height 
+    
