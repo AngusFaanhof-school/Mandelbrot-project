@@ -14,14 +14,14 @@ def number_is_bounded_by_mandelbrot(c, iterations, z=0.0j, iteration=0):
 def hex_from_rgb(r,g,b):
     return '#%02x%02x%02x' % (r,g,b)
 
-def get_color(iterations):
+def get_color(iterations, rgb=False):
     values = [0, 32, 64, 128]
 
     b = values[iterations % 4]
     g = values[(iterations // 4) % 4] 
     r = values[(iterations // 16) % 4]
         
-    return hex_from_rgb(r,g,b)
+    return (r,g,b) if rgb else hex_from_rgb(r,g,b)
 
 def draw_from_iterations_array(canvas, iterations_array, width, option, color="#000000"):
     
