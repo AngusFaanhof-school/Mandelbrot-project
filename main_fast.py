@@ -1,8 +1,10 @@
 from mandelbrot import Mandelbrot
+from helpers import draw_from_iterations_array, hex_from_rgb, get_area_variables, get_color
+
 from PIL import Image, ImageTk, ImageColor
-import tkinter.colorchooser as tkc
-from helpers import get_color
+
 import tkinter as tk
+import tkinter.colorchooser as colorchooser
 
 def get_pixel_array_from_option(iterations_array, option, color):
     pixel_array = [(255,255,255)] * len(iterations_array)
@@ -28,11 +30,10 @@ def get_pixel_array_from_option(iterations_array, option, color):
 WIDTH = 500
 HEIGHT = 500
 
-color = "#000000"
-
 root = tk.Tk()
 root.title("Project Mandelbrot")
 
+# The image container
 label = tk.Label(root)
 label.pack()
 
@@ -59,11 +60,11 @@ iterations_slider.pack()
 color_label = tk.Label(root, text = "Custom color")
 color_label.pack()
 
-color_button = ""
+color = "#000000"
 
 def change_color():
     global color
-    color = tkc.askcolor()[1]
+    color = colorchooser.askcolor()[1]
     color_button.configure(bg=color)
 
 color_button = tk.Button(root, width=10, command=change_color, text="CLICK ME!")
