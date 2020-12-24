@@ -9,6 +9,28 @@ import tkinter.colorchooser as colorchooser
 WIDTH = 500
 HEIGHT = 500
 
+x_start=-2
+y_start=-1.5
+x_width=3
+y_height=3
+
+mouse_start_x, mouse_start_y = 0, 0
+mouse_end_x, mouse_end_y = 0, 0
+rect_id = None
+
+def get_mouse_posn(event):
+    global mouse_start_x, mouse_start_y
+
+    mouse_start_x, mouse_start_y = event.x, event.y
+
+def update_sel_rect(event):
+    global rect_id
+    global mouse_start_x, mouse_start_y, mouse_end_x, mouse_end_y
+
+    mouse_end_x, mouse_end_y = event.x, event.y
+    canvas.coords(rect_id, mouse_start_x, mouse_start_y, mouse_end_x, mouse_end_y)  # Update selection rect.
+
+
 pixel_array = []
 color = "#000000"
 
@@ -20,7 +42,7 @@ label = tk.Label(root)
 canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT)
 
 fast_option = tk.BooleanVar()
-fast_option.set(True)
+fast_option.set(False)
 
 def change_mode():
     if fast_option.get():
@@ -73,8 +95,19 @@ color_button.pack()
 zoom_scale = tk.Scale(root, from_=-5, to=5, orient=tk.HORIZONTAL, label='zoom')
 zoom_scale.pack()
 
+def get_scaled_coord(px,py):
+    scaled_px = x_start + px / WIDTH * x_width
+    scaled_py = y_start - py / HEIGHT * y_height
+    return scaled_px, scaled_py
+
 def get_mandelbrot(width, height, iterations, zoom):
-    x_start, y_start, x_width, y_height = get_area_variables(zoom)
+    global x_start, y_start, x_width, y_height
+    if mouse_start_x != 0 and mouse_start_y != 0 and mouse_end_x != 0 and mouse_end_y != 0:
+        x_start, y_start = get_scaled_coord(mouse_start_x, mouse_start_y)
+        x_width, y_height = get_scaled_coord(mouse_end_x, mouse_end_y)
+        print(x_start, y_start, x_width, y_height)
+
+    # x_start, y_start, x_width, y_height = get_area_variables(zoom)
     return Mandelbrot(width, height, iterations, x_start, y_start, x_width, y_height)
 
 def change_pixel(pixel, hex_color):
@@ -104,10 +137,24 @@ def redraw_mandelbrot():
         mandelbrot = get_mandelbrot(WIDTH, HEIGHT, iterations_slider.get(), zoom_scale.get())
 
         canvas.delete("all")
-
+        canvas.create_rectangle(mouse_start_x, mouse_start_y, mouse_start_x, mouse_start_y, dash=(2,2), fill="", outline="red")
         process_iterations_array(mandelbrot.iterations_array, option.get(), color, draw_pixel_on_canvas)
 
 redraw_mandelbrot()
+
+rect_id = canvas.create_rectangle(mouse_start_x, mouse_start_y, mouse_start_x, mouse_start_y, dash=(2,2), fill="", outline="red")
+
+canvas.bind('<Button-1>', get_mouse_posn)
+canvas.bind('<B1-Motion>', update_sel_rect)
+
+
+
+def print_area():
+    print(mouse_start_x, mouse_start_y, mouse_end_x, mouse_end_y)
+    x_start, y_start = get_scaled_coord(mouse_start_x, mouse_start_y)
+    x_width, y_height = get_scaled_coord(mouse_end_x, mouse_end_y)
+    print(x_start, y_start, x_width, y_height)
+tk.Button(root, text="Select Area", command=print_area).pack()
 
 tk.Button(root, text="Generate", command=redraw_mandelbrot).pack()
 
