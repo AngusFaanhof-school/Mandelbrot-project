@@ -1,7 +1,7 @@
 from helpers import number_is_bounded_by_mandelbrot
 
 class Mandelbrot:
-    def __init__(self, pixel_width, pixel_height, iterations, x_start=-2, y_start=-1.5, x_width=3, y_height=3):
+    def __init__(self, pixel_width, pixel_height, iterations, option, x_start=-2, y_start=-1.5, x_width=3, y_height=3, color="#000000"):
         self.pixel_width = pixel_width
         self.pixel_height = pixel_height
         self.iterations = iterations
@@ -9,6 +9,8 @@ class Mandelbrot:
         self.y_start = y_start
         self.x_width = x_width
         self.y_height = y_height
+        self.option = option
+        self.color = color
 
         self.fill_iterations_array()
 

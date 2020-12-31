@@ -1,64 +1,39 @@
+from settings import settings, notes
 from mandelbrot import Mandelbrot
-from helpers import process_iterations_array, get_area_variables, hex_to_rgb
-
-from PIL import Image, ImageTk
+from helpers import process_iterations_array, hex_to_rgba
 
 import tkinter as tk
 import tkinter.colorchooser as colorchooser
 
+if settings["pil_installed"]:
+    from PIL import Image, ImageTk
+    from helpers import get_mandelbrot_image
+
 WIDTH = 500
 HEIGHT = 500
-
-x_start=-2
-y_start=-1.5
-x_width=3
-y_height=3
-
-mouse_start_x, mouse_start_y = 0, 0
-mouse_end_x, mouse_end_y = 0, 0
-rect_id = None
-
-def get_mouse_posn(event):
-    global mouse_start_x, mouse_start_y
-
-    mouse_start_x, mouse_start_y = event.x, event.y
-
-def update_sel_rect(event):
-    global rect_id
-    global mouse_start_x, mouse_start_y, mouse_end_x, mouse_end_y
-
-    mouse_end_x, mouse_end_y = event.x, event.y
-    canvas.coords(rect_id, mouse_start_x, mouse_start_y, mouse_end_x, mouse_end_y)  # Update selection rect.
-
-
-pixel_array = []
-color = "#000000"
 
 root = tk.Tk()
 root.title("Project Mandelbrot")
 
-# The image container
-label = tk.Label(root)
-canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT)
+# Mode menu
+if settings["pil_installed"]:
+    fast_mode = True
 
-fast_option = tk.BooleanVar()
-fast_option.set(False)
+    flip_switch_frame = tk.Frame(root)
+    flip_switch_frame.pack()
 
-def change_mode():
-    if fast_option.get():
-        label.pack(side=tk.LEFT)
-        canvas.forget()
-    else:
-        canvas.pack(side=tk.LEFT)
-        label.forget()
+    tk.Label(flip_switch_frame, text="Mode:").pack(side=tk.LEFT)
 
-change_mode()
+    def change_mode():
+        global fast_mode
+        fast_mode = not fast_mode
+        switch.configure(text="Fast" if fast_mode else "Slow")
 
-edge_mandelbrot = tk.Radiobutton(root, text="Fast", variable=fast_option, value=True, command=change_mode)
-edge_mandelbrot.pack()
+    switch = tk.Button(flip_switch_frame, text="Fast", command=change_mode)
+    switch.pack()
 
-full_mandelbrot = tk.Radiobutton(root, text="SLOW", variable=fast_option, value=False, command=change_mode)
-full_mandelbrot.pack()
+else:
+    tk.Label(root, text=f'Note: {notes[0]}', fg="red").pack()
 
 # option select menu
 # this variable contains the selected option. It defaults to 1
@@ -75,11 +50,12 @@ special_mandelbrot = tk.Radiobutton(root, text="Special", variable=option, value
 special_mandelbrot.pack()
 
 # iterations slider
-# the iterations slider goes from 20 to 300
-iterations_slider = tk.Scale(root, from_=20, to=300, orient=tk.HORIZONTAL, label='iterations')
+iterations_slider = tk.Scale(root, from_=20, to=300, orient=tk.HORIZONTAL, label="Iterations")
 iterations_slider.pack()
 
 # Button menu to change the color
+color = "#000000"
+
 color_label = tk.Label(root, text = "Custom color")
 color_label.pack()
 
@@ -91,71 +67,96 @@ def change_color():
 color_button = tk.Button(root, width=10, command=change_color, text="CLICK ME!")
 color_button.pack()
 
-# zoom slider scale
-zoom_scale = tk.Scale(root, from_=-5, to=5, orient=tk.HORIZONTAL, label='zoom')
-zoom_scale.pack()
-
-def get_scaled_coord(px,py):
-    scaled_px = x_start + px / WIDTH * x_width
-    scaled_py = y_start - py / HEIGHT * y_height
-    return scaled_px, scaled_py
-
-def get_mandelbrot(width, height, iterations, zoom):
-    global x_start, y_start, x_width, y_height
-    if mouse_start_x != 0 and mouse_start_y != 0 and mouse_end_x != 0 and mouse_end_y != 0:
-        x_start, y_start = get_scaled_coord(mouse_start_x, mouse_start_y)
-        x_width, y_height = get_scaled_coord(mouse_end_x, mouse_end_y)
-        print(x_start, y_start, x_width, y_height)
-
-    # x_start, y_start, x_width, y_height = get_area_variables(zoom)
-    return Mandelbrot(width, height, iterations, x_start, y_start, x_width, y_height)
+# display for the mandelbrot
+canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT, bd=1)
+canvas.pack()
 
 def change_pixel(pixel, hex_color):
-    pixel_array[pixel] = hex_to_rgb(hex_color)
+    pixel_array[pixel] = hex_to_rgba(hex_color)
 
 def draw_pixel_on_canvas(pixel, color):
     x = pixel % WIDTH
     y = pixel // WIDTH
     canvas.create_rectangle(x, y, x, y, outline=color)
 
-def redraw_mandelbrot():
-    if fast_option.get():
-        global pixel_array
-        mandelbrot = get_mandelbrot(WIDTH, HEIGHT, iterations_slider.get(), zoom_scale.get())
-        
-        pixel_array = [(255,255,255)] * (WIDTH * HEIGHT)
+pixel_array = []
 
-        process_iterations_array(mandelbrot.iterations_array, option.get(), color, change_pixel)
-        
-        image = Image.new(mode="RGB", size=(WIDTH,HEIGHT))
-        image.putdata(pixel_array)
-        photo_image = ImageTk.PhotoImage(image)
+def redraw():
+    mandelbrot = Mandelbrot(WIDTH, HEIGHT, iterations_slider.get(), option.get(), x_start, y_start, x_width, y_height, color)
+    
+    # remove all the objects except the select area object
+    canvas.delete("!select_area")
+    canvas.coords("select_area" , 0, 0, 0,0)
 
-        label.configure(image=photo_image)
-        label.img = photo_image
+    if settings["pil_installed"] and fast_mode:
+        pixel_array = process_iterations_array(mandelbrot, True, canvas)
+        photo_image = get_mandelbrot_image(pixel_array, WIDTH, HEIGHT)
+        canvas.img = photo_image
+
+        canvas.create_image(WIDTH / 2, HEIGHT / 2, image=photo_image)
     else:
-        mandelbrot = get_mandelbrot(WIDTH, HEIGHT, iterations_slider.get(), zoom_scale.get())
+        process_iterations_array(mandelbrot, False, canvas)
 
-        canvas.delete("all")
-        canvas.create_rectangle(mouse_start_x, mouse_start_y, mouse_start_x, mouse_start_y, dash=(2,2), fill="", outline="red")
-        process_iterations_array(mandelbrot.iterations_array, option.get(), color, draw_pixel_on_canvas)
+pixel_area = [(0,0), (0,0)]
+area_select_rect = canvas.create_rectangle(0,0,0,0, dash=(2,2), fill="", outline="red", tags="select_area")
 
-redraw_mandelbrot()
+# default area
+x_start=-2
+y_start=-1.5
+x_width=3
+y_height=3
 
-rect_id = canvas.create_rectangle(mouse_start_x, mouse_start_y, mouse_start_x, mouse_start_y, dash=(2,2), fill="", outline="red")
+mouse_start_x, mouse_start_y = 0,0
 
-canvas.bind('<Button-1>', get_mouse_posn)
-canvas.bind('<B1-Motion>', update_sel_rect)
+def set_start_mandelbrot_area(event):
+    global mouse_start_x, mouse_start_y
+    mouse_start_x = event.x
+    mouse_start_y = event.y
+
+    pixel_area[0] = (mouse_start_x, mouse_start_y)
+
+    canvas.tag_raise("select_area", 'all')
+
+def update_area_select_rect(event):
+    pixel_area[1] = (event.x, event.y)
+
+    canvas.coords("select_area", pixel_area[0][0], pixel_area[0][1], pixel_area[1][0], pixel_area[1][1])
+
+def update_start_area(event):
+    global x_width, y_height, x_start, y_start
+
+    if mouse_start_y > event.y:
+        y_start = y_start + event.y / HEIGHT * y_height
+    else :
+        y_start = y_start + mouse_start_y / HEIGHT * y_height
+
+    if mouse_start_x > event.x:
+        x_start = x_start + event.x / WIDTH * x_width
+    else :
+        x_start = x_start + mouse_start_x / WIDTH * x_width
+
+    x_width = abs(event.x - mouse_start_x) / WIDTH * x_width
+    y_height = abs(event.y - mouse_start_y) / HEIGHT * y_height 
+
+    redraw()
 
 
+canvas.bind('<ButtonPress>', set_start_mandelbrot_area)
+canvas.bind('<B1-Motion>', update_area_select_rect)
+canvas.bind('<ButtonRelease>', update_start_area)
 
-def print_area():
-    print(mouse_start_x, mouse_start_y, mouse_end_x, mouse_end_y)
-    x_start, y_start = get_scaled_coord(mouse_start_x, mouse_start_y)
-    x_width, y_height = get_scaled_coord(mouse_end_x, mouse_end_y)
-    print(x_start, y_start, x_width, y_height)
-tk.Button(root, text="Select Area", command=print_area).pack()
+def reset_zoom():
+    global x_start, y_start, x_width, y_height
+    x_start=-2
+    y_start=-1.5
+    x_width=3
+    y_height=3
 
-tk.Button(root, text="Generate", command=redraw_mandelbrot).pack()
+    redraw()
+
+tk.Button(root, text="Reset zoom", command= reset_zoom).pack()
+tk.Button(root, text="Generate", command=redraw).pack()
+
+redraw()
 
 root.mainloop()
