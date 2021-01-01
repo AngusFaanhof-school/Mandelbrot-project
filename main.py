@@ -15,6 +15,10 @@ HEIGHT = 500
 root = tk.Tk()
 root.title("Project Mandelbrot")
 
+# Message if numba is not installed
+if not settings["jit_installed"]:
+    tk.Label(root, text=f'Note: {notes[1]}', fg="red").pack()
+
 # Mode menu
 if settings["pil_installed"]:
     fast_mode = True
