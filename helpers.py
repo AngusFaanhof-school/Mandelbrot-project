@@ -1,15 +1,20 @@
 from settings import settings
 
+# if pillow is installed, this function is defined and can be used to create an image of the mandelbrot set
 if settings["pil_installed"]:
     from PIL import Image, ImageTk
 
     def get_mandelbrot_image(pixel_array, width, height):
+        # NOTE: RGBA is used to get a transparent background
         image = Image.new(mode="RGBA", size=(width,height))
         image.putdata(pixel_array)
 
         return ImageTk.PhotoImage(image)
 
-if settings["jit_installed"]:
+# make sure the function works even when numba is not installed
+# numba adds the compiler option "jit" to make a function run faster
+# NOTE: z=0.0j stands for z = 0+0i
+if settings["numba_installed"]:
     from numba import jit
 
     @jit
@@ -33,9 +38,11 @@ else:
         z = z*z + c
         return number_is_bounded_by_mandelbrot(c, iterations, z, iteration + 1)
 
+# simple function that converts rgb to hex
 def rgb_to_hex(r,g,b):
     return '#%02x%02x%02x' % (r,g,b)
 
+# simple function that converts hex to rgba
 def hex_to_rgba(hex_color):
     r = int(hex_color[1:3], 16)
     g = int(hex_color[3:5], 16)
@@ -43,6 +50,8 @@ def hex_to_rgba(hex_color):
 
     return (r,g,b, 255)
 
+# This is the function responsible for the special option
+# the rgb parameter indicates if it is for a canvas or an image
 def get_special_color(iterations, rgb=False):
     values = [0, 32, 64, 128]
 
@@ -52,8 +61,13 @@ def get_special_color(iterations, rgb=False):
         
     return (r,g,b) if rgb else rgb_to_hex(r,g,b)
 
+# this function processes each pixel of the mandelbrot set
 def process_iterations_array(mandelbrot, fast_mode, canvas):
+    # if fast mode is true, the mandelbrot will be processed for an image
+    # otherwise the mandelbrot is drawn on the canvas
+    # NOTE: callback is the function that is executed for each pixel
     if fast_mode:
+        # initialize an empty pixel array
         pixel_array = [(255,255,255, 0)] * (mandelbrot.pixel_width * mandelbrot.pixel_height)
 
         def change_pixel(pixel, hex_color):
@@ -78,7 +92,7 @@ def process_iterations_array(mandelbrot, fast_mode, canvas):
             if mandelbrot.iterations_array[pixel] == 0:
                 callback(pixel, mandelbrot.color)
 
-    # Option 3 draws whole mandelbrot set with a coloring scheme
+    # Option 3 draws the whole mandelbrot set with a special coloring scheme
     elif mandelbrot.option == 3:
         for pixel in range(len(mandelbrot.iterations_array)):
             color = get_special_color(mandelbrot.iterations_array[pixel])
