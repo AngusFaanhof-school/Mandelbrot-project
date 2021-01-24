@@ -50,6 +50,7 @@ def hex_to_rgba(hex_color):
 
     return (r,g,b, 255)
 
+# Daniel
 # This is the function responsible for the special option
 # the rgb parameter indicates if it is for a canvas or an image
 def get_special_color(iterations, rgb=False):
@@ -80,18 +81,21 @@ def process_iterations_array(mandelbrot, fast_mode, canvas):
             canvas.create_rectangle(x, y, x, y, outline=color)
         callback = draw_pixel_on_canvas
     
+    # Daniel
     # Option 1 draws the edge of the mandelbrot set
     if mandelbrot.option == 1:
         for pixel in range(len(mandelbrot.iterations_array)):
             if mandelbrot.iterations_array[pixel] > 17:
                 callback(pixel, mandelbrot.color)
-
+    
+    # Daniel
     # Option 2 draws the inside of the mandelbrot set
     elif mandelbrot.option == 2:
         for pixel in range(len(mandelbrot.iterations_array)):
             if mandelbrot.iterations_array[pixel] == 0:
                 callback(pixel, mandelbrot.color)
-
+                
+    # Daniel
     # Option 3 draws the whole mandelbrot set with a special coloring scheme
     elif mandelbrot.option == 3:
         for pixel in range(len(mandelbrot.iterations_array)):
