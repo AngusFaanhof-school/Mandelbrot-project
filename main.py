@@ -104,6 +104,7 @@ def redraw():
     else:
         process_iterations_array(mandelbrot, False, canvas)
 
+# Gia start
 # The points for the area select rectangle
 pixel_area = [(0,0), (0,0)]
 area_select_rect = canvas.create_rectangle(0,0,0,0, dash=(2,2), fill="", outline="red", tags="select_area")
@@ -177,6 +178,7 @@ def reset_zoom():
     redraw()
 
 tk.Button(main_frame, text="Reset zoom", command= reset_zoom).pack()
+# Gia end
 tk.Button(main_frame, text="Generate", command=redraw).pack()
 
 # explenation of the mandelbrot set
